@@ -1,0 +1,8 @@
+encryptionsalt: v1:b3X7dVeaWho=:v1:52DYX9OolrH1lAvv:8GBA6h7XBZ4xTQRcVQ4upJC/Hyws4Q==
+config:
+  aws:region: us-east-1
+  iac-pulumi:baseCIDR: 10.0.0.0/16
+  iac-pulumi:destinationCidrBlock: 0.0.0.0/0
+  iac-pulumi:name: veeru
+  iac-pulumi:noOfPrivateSubnets: "3"
+  iac-pulumi:noOfPublicSubnets: "3"

@@ -1,0 +1,20 @@
+Steps to create a new pulumi project
+    pulumi login --local
+    create a empty directory
+    export AWS_PROFILE=dev
+    pulumi new
+    select aws-javascript
+    give project name: iac-pulumi
+    give the stack: dev
+    give the default region: us-east-1
+    give the passphrase
+
+Steps to create a demo stack
+    pulumi stack init demo
+
+Steps to create services in AWS demo profile
+    export AWS_PROFILE=demo
+    pulumi stack select demo
+    pulumi up
+    pulumi destroy
+

@@ -7,9 +7,6 @@ const fs = require('fs');
 const config = new pulumi.Config();
 const amiId = config.get("amiId");
 const publicKeyName = config.get("aws-ec2-keyName");
-// const privateKeyPath = process.env.PRIVATE_KEY_PATH;
-
-// const privateKey = fs.readFileSync(privateKeyPath, "utf8");
 
 const ec2 = {};
 
@@ -33,6 +30,5 @@ ec2.createEc2 = (name, securityGroupId, subnetId) => {
     });
     return ec2Instance.id;
 }
-
 
 module.exports = ec2;

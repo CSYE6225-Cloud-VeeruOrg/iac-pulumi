@@ -6,3 +6,8 @@ config:
   iac-pulumi:name: veeru
   iac-pulumi:noOfPrivateSubnets: "3"
   iac-pulumi:noOfPublicSubnets: "3"
+  applicationPort: 4000
+  amiId: ami-0b533895cca56feb2
+  instanceType: t2.micro
+  volumeSize: 25
+  volumeType: gp2

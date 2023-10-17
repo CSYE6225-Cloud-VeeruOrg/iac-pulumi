@@ -33,7 +33,7 @@ subnet.createPublicSubnets = async (vpcId, name) => {
         const publicSubnet = new aws.ec2.Subnet(`${name}-public-subnet-${i}`, {
             vpcId: vpcId,
             mapPublicIpOnLaunch: true,
-            cidrBlock: subnetCidrBlocks.subnets[i].value,
+            cidrBlock: subnetCidrBlocks.subnets[i*2 + 1].value,
             availabilityZone: availabilityZones[i],
             mapPublicIpOnLaunch: true,
             tags: {
@@ -52,7 +52,7 @@ subnet.createPrivateSubnets = async (vpcId, name) => {
     for(let i = 0; i < noOfPrivateSubnets; i++) {
         const privateSubnet = new aws.ec2.Subnet(`${name}-private-subnet-${i}`, {
             vpcId: vpcId,
-            cidrBlock: subnetCidrBlocks.subnets[i + 3].value,
+            cidrBlock: subnetCidrBlocks.subnets[i*2 + 2].value,
             availabilityZone: availabilityZones[i],
             tags: {
                 Name: `${name}-private-subnet-${i}`

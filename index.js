@@ -2,6 +2,8 @@ const vpc = require('./src/vpc');
 const subnet  = require('./src/subnet');
 const internetGateway = require('./src/internetGateway');
 const routeTable = require("./src/routeTable");
+const securityGroup = require("./src/securityGroups");
+const ec2Instance = require("./src/ec2");
 
 const pulumi = require('@pulumi/pulumi');
 const config = new pulumi.Config();
@@ -19,6 +21,8 @@ create = async (name) => {
     routeTable.associatePublicSubnets(subnet.publicSubnets, publicRT.id, name);
     const privateRT = routeTable.createPrivateRouteTable(myvpc.id, name);
     routeTable.associatePrivateSubnets(subnet.privateSubnets, privateRT.id, name);
+    const sgId = securityGroup.createApplicationSecurityGroup(myvpc.id);
+    const ec2 = ec2Instance.createEc2(name, sgId, subnet.publicSubnets[0].id);
 }
 
 create(config.get("name"));

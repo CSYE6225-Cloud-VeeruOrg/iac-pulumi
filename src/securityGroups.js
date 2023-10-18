@@ -2,6 +2,7 @@ const pulumi = require('@pulumi/pulumi');
 const aws = require('@pulumi/aws');
 
 const config = new pulumi.Config();
+const ports = config.getObject("ports");
 
 const securityGroup = {};
 
@@ -11,26 +12,26 @@ securityGroup.createApplicationSecurityGroup = (vpcId) => {
     ingress: [
         {
             protocol: 'tcp',
-            fromPort: 22,
-            toPort: 22,
+            fromPort: ports[0],
+            toPort: ports[0],
             cidrBlocks: ['0.0.0.0/0'],
         },
         {
             protocol: 'tcp',
-            fromPort: 80,
-            toPort: 80,
+            fromPort: ports[1],
+            toPort: ports[1],
             cidrBlocks: ['0.0.0.0/0'],
         },
         {
             protocol: 'tcp',
-            fromPort: 443,
-            toPort: 443,
+            fromPort: ports[2],
+            toPort: ports[2],
             cidrBlocks: ['0.0.0.0/0'],
         },
         {
             protocol: 'tcp',
-            fromPort: config.get("applicationPort"),
-            toPort: config.get("applicationPort"),
+            fromPort: ports[3],
+            toPort: ports[3],
             cidrBlocks: ['0.0.0.0/0'],
         },
     ],

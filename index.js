@@ -10,7 +10,6 @@ const config = new pulumi.Config();
 
 create = async (name) => {
     await subnet.getAvailabilityZones();
-    subnet.calculateSubnetCidrBlocks();
     const myvpc = vpc.createVpc(name);
     await subnet.createPublicSubnets(myvpc.id, name);
     await subnet.createPrivateSubnets(myvpc.id, name);

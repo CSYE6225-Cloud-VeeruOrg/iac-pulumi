@@ -6,8 +6,17 @@ config:
   iac-pulumi:name: veeru
   iac-pulumi:noOfPrivateSubnets: "3"
   iac-pulumi:noOfPublicSubnets: "3"
-  applicationPort: 4000
-  amiId: ami-0b533895cca56feb2
+  ports: [22, 80, 443, 4000]
+  amiId: ami-0291c4f1b92656801
   instanceType: t2.micro
   volumeSize: 25
   volumeType: gp2
+  aws-ec2-keyName: packer_pulumi_demo
+  iac-pulumi:publicSubnetCidrBlocks:
+    - 10.0.0.0/19
+    - 10.0.32.0/19
+    - 10.0.64.0/19
+  iac-pulumi:privateSubnetCidrBlocks:
+    - 10.0.96.0/19
+    - 10.0.128.0/19
+    - 10.0.160.0/19

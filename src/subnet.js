@@ -1,24 +1,17 @@
 const aws = require("@pulumi/aws");
 const pulumi = require('@pulumi/pulumi');
 
-var SubnetCIDRAdviser = require('subnet-cidr-calculator');
-
 const config = new pulumi.Config();
 const region = config.get("aws:region");
-const baseCIDR = config.get("baseCIDR");
 let noOfPublicSubnets = config.getNumber("noOfPublicSubnets");
 let noOfPrivateSubnets = config.getNumber("noOfPrivateSubnets");
-// const subnetCidrBlocks = config.getObject("subnetCidrBlocks");
+const publicSubnetCidrBlocks = config.getObject("publicSubnetCidrBlocks");
+const privateSubnetCidrBlocks = config.getObject("privateSubnetCidrBlocks");
 
 const subnet = {};
-let subnetCidrBlocks = {};
 subnet.publicSubnets = [];
 subnet.privateSubnets = [];
 let availabilityZones = [];
-
-subnet.calculateSubnetCidrBlocks = () => {
-   subnetCidrBlocks = SubnetCIDRAdviser.calculate(baseCIDR.split('/')[0], baseCIDR.split('/')[1]);
-}
 
 subnet.getAvailabilityZones = async () => {
     availabilityZones = (await aws.getAvailabilityZones({ state: "available", region: region })).names;
@@ -33,7 +26,7 @@ subnet.createPublicSubnets = async (vpcId, name) => {
         const publicSubnet = new aws.ec2.Subnet(`${name}-public-subnet-${i}`, {
             vpcId: vpcId,
             mapPublicIpOnLaunch: true,
-            cidrBlock: subnetCidrBlocks.subnets[i*2 + 1].value,
+            cidrBlock: publicSubnetCidrBlocks[i],
             availabilityZone: availabilityZones[i],
             mapPublicIpOnLaunch: true,
             tags: {
@@ -52,7 +45,7 @@ subnet.createPrivateSubnets = async (vpcId, name) => {
     for(let i = 0; i < noOfPrivateSubnets; i++) {
         const privateSubnet = new aws.ec2.Subnet(`${name}-private-subnet-${i}`, {
             vpcId: vpcId,
-            cidrBlock: subnetCidrBlocks.subnets[i*2 + 2].value,
+            cidrBlock: privateSubnetCidrBlocks[i],
             availabilityZone: availabilityZones[i],
             tags: {
                 Name: `${name}-private-subnet-${i}`

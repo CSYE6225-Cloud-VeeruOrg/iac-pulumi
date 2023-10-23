@@ -35,11 +35,35 @@ securityGroup.createApplicationSecurityGroup = (vpcId) => {
             cidrBlocks: ['0.0.0.0/0'],
         },
     ],
+    egress: [
+            {
+                protocol: 'tcp',
+                fromPort: ports[4],
+                toPort: ports[4],
+                cidrBlocks: ['0.0.0.0/0'],
+            },
+        ],
     tags: {
         name: `applicationSecurityGroup`
     }
 });
     return securityGroup.id;
+}
+
+securityGroup.createDbSecurityGroup = (name, vpcId, appsgId) => {
+    const dbSecurityGroup = new aws.ec2.SecurityGroup(`${name}-databaseSecurityGroup`, {
+        description: "DB Security Group for RDS",
+        vpcId: vpcId,
+        ingress: [
+            {
+                protocol: 'tcp',
+                fromPort: ports[4],
+                toPort: ports[4],
+                securityGroups: [appsgId]
+            },
+        ]
+    });
+    return dbSecurityGroup.id;
 }
 
 module.exports = securityGroup;

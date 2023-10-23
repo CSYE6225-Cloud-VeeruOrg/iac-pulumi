@@ -41,13 +41,13 @@ routeTable.associatePublicSubnets = (publicSubnets, pRTId, name) => {
 }
 
 routeTable.createPrivateRouteTable = (vpcId, name) => {
-    const publicRT = new aws.ec2.RouteTable(`${name}-Private-Route-Table`, {
+    const privateRT = new aws.ec2.RouteTable(`${name}-Private-Route-Table`, {
         vpcId: vpcId,
         tags: {
             Name: `${name}-private-route-table`
         }
     })
-    return publicRT;
+    return privateRT;
 }
 
 routeTable.associatePrivateSubnets = (privateSubnets, pRTId, name) => {

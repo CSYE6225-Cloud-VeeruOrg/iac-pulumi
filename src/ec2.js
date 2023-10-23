@@ -57,7 +57,6 @@ ec2.createEc2 = (name, securityGroupId, subnetId, rds) => {
         echo "PGDATABASE=${rds.dbName}" >> /etc/environment
         echo "PGPORT=${rds.port}" >> /etc/environment
         `
-
     });
     return ec2Instance.id;
 }

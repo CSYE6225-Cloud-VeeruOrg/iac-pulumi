@@ -37,9 +37,9 @@ securityGroup.createApplicationSecurityGroup = (vpcId) => {
     ],
     egress: [
             {
-                protocol: 'tcp',
-                fromPort: ports[4],
-                toPort: ports[4],
+                protocol: '-1',
+                fromPort: 0,
+                toPort: 0,
                 cidrBlocks: ['0.0.0.0/0'],
             },
         ],

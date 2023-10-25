@@ -56,6 +56,8 @@ ec2.createEc2 = (name, securityGroupId, subnetId, rds) => {
         echo "PGPASSWORD=${rds.password}" >> /etc/environment
         echo "PGDATABASE=${rds.dbName}" >> /etc/environment
         echo "PGPORT=${rds.port}" >> /etc/environment
+        sudo chown -R csye6225:csye6225 /etc/environment
+        sudo chmod -R 755 /etc/environment
         `
     });
     return ec2Instance.id;

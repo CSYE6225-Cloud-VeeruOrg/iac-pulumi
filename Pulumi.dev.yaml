@@ -7,7 +7,7 @@ config:
   iac-pulumi:noOfPrivateSubnets: 3
   iac-pulumi:noOfPublicSubnets: 3
   ports: [22, 80, 443, 4000, 5432]
-  amiId: ami-0dbd179e03f67c88d
+  amiId: ami-0ad6073a11c55706e
   instanceType: t2.micro
   volumeSize: 25
   volumeType: gp2

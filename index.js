@@ -5,6 +5,8 @@ const routeTable = require("./src/routeTable");
 const securityGroup = require("./src/securityGroups");
 const ec2Instance = require("./src/ec2");
 const rds = require('./src/rds');
+const route53 = require('./src/route53');
+const iam = require('./src/iam');
 
 const pulumi = require('@pulumi/pulumi');
 const config = new pulumi.Config();
@@ -26,7 +28,9 @@ create = async (name) => {
     const dbsgId = securityGroup.createDbSecurityGroup(name, myvpc.id, appsgId);
     const rdsParameterGroup = rds.createRdsParameterGroup();
     const myRds = await rds.createRdsInstance(name, rdsParameterGroup, dbsgId, privateSubnetGroup); 
-    const ec2 = ec2Instance.createEc2(name, appsgId, subnet.publicSubnets[0].id, myRds);
+    const instanceProfile = iam.createRole();
+    const ec2 = ec2Instance.createEc2(name, appsgId, subnet.publicSubnets[0].id, myRds, instanceProfile.name);
+    const aRecord = route53.createArecord(ec2.publicIp);
 }
 
 create(config.get("name"));

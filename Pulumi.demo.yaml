@@ -1,13 +1,14 @@
 encryptionsalt: v1:b3X7dVeaWho=:v1:52DYX9OolrH1lAvv:8GBA6h7XBZ4xTQRcVQ4upJC/Hyws4Q==
 config:
   aws:region: us-east-1
+  stack: demo
   iac-pulumi:baseCIDR: 10.0.0.0/16
   iac-pulumi:destinationCidrBlock: 0.0.0.0/0
   iac-pulumi:name: veeru
   iac-pulumi:noOfPrivateSubnets: 3
   iac-pulumi:noOfPublicSubnets: 3
   ports: [22, 80, 443, 4000, 5432]
-  amiId: ami-0291c4f1b92656801
+  amiId: ami-09a07a6228d3f8815
   instanceType: t2.micro
   volumeSize: 25
   volumeType: gp2
@@ -20,3 +21,4 @@ config:
     - 10.0.96.0/19
     - 10.0.128.0/19
     - 10.0.160.0/19
+  hostedZoneId: Z041320536FB5054OI8OD

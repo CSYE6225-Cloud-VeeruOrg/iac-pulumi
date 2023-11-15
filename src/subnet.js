@@ -59,7 +59,7 @@ subnet.createPrivateSubnets = async (vpcId, name) => {
 subnet.createPrivateSubnetsGroup = async (name, privateSubnets) => {
     const privateSubnetIds = privateSubnets.map(psn => {
         return psn.id;
-    })
+    });
     const privateSubnetGroup = new aws.rds.SubnetGroup(`${name}-private-subnet-group`, {
         subnetIds: privateSubnetIds,
     });

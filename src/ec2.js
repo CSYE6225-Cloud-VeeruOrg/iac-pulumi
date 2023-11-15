@@ -1,5 +1,5 @@
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+// const path = require('path');
+// require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const pulumi = require('@pulumi/pulumi');
 const aws = require('@pulumi/aws');
 const fs = require('fs');
@@ -11,7 +11,6 @@ const publicKeyName = config.get("aws-ec2-keyName");
 const ec2 = {};
 
 ec2.createEc2 = (name, securityGroupId, subnetId, rds, instanceProfileName) => {
-    // const rdsEndpoint = rds.endpoint.apply(endpoint => `PGHOST=${endpoint}`.toString());
     const ec2Instance = new aws.ec2.Instance(`${name}-ec2-instance`, {
         ami: amiId,
         instanceType: config.get("instanceType"),
@@ -47,6 +46,44 @@ ec2.createEc2 = (name, securityGroupId, subnetId, rds, instanceProfileName) => {
         `
     });
     return ec2Instance;
+}
+
+ec2.createLaunchTemplate = (name, securityGroupId, instanceProfileName, rds) => {
+    let userDataScript = pulumi.interpolate`#!/bin/bash
+    sudo yum update -y
+    echo "PGHOST=${rds.address}" >> /etc/environment
+    echo "PGUSER=${rds.username}" >> /etc/environment
+    echo "PGPASSWORD=${rds.password}" >> /etc/environment
+    echo "PGDATABASE=${rds.dbName}" >> /etc/environment
+    echo "PGPORT=${rds.port}" >> /etc/environment
+    sudo chown -R csye6225:csye6225 /etc/environment
+    sudo chmod -R 755 /etc/environment
+    sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+        -a fetch-config \
+        -m ec2 \
+        -c file:/opt/AmazonCloudWatch-config.json \
+        -s
+    sudo systemctl restart amazon-cloudwatch-agent
+    `;
+    const encodedUserData = pulumi.all([userDataScript]).apply(([userData]) => {
+        return Buffer.from(userData).toString("base64");
+    });
+    const template = new aws.ec2.LaunchTemplate(`${name}-launch-template`, {
+        imageId: amiId,
+        instanceType: config.get("instanceType"),
+        keyName: publicKeyName,
+        networkInterfaces: [{
+            associatePublicIpAddress: true,
+            deleteOnTermination: true,
+            deviceIndex: 0,
+            securityGroups: [securityGroupId],
+        }],
+        userData: encodedUserData,
+        iamInstanceProfile: {
+            name: instanceProfileName,
+        },
+    });
+    return template;
 }
 
 module.exports = ec2;

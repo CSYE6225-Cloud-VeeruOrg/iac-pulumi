@@ -14,7 +14,8 @@ securityGroup.createApplicationSecurityGroup = (vpcId, lbsgId) => {
             protocol: 'tcp',
             fromPort: ports[0],
             toPort: ports[0],
-            securityGroups: [lbsgId]
+            cidrBlocks: ['0.0.0.0/0']
+            // securityGroups: [lbsgId]
         },
         {
             protocol: 'tcp',

@@ -7,8 +7,10 @@ const ec2Instance = require("./src/ec2");
 const rds = require('./src/rds');
 const route53 = require('./src/route53');
 const iam = require('./src/iam');
+const autoScaling = require('./src/autoScaling');
 
 const pulumi = require('@pulumi/pulumi');
+const loadBalancer = require('./src/loadBalancer');
 const config = new pulumi.Config();
 
 create = async (name) => {
@@ -24,13 +26,21 @@ create = async (name) => {
     routeTable.associatePublicSubnets(subnet.publicSubnets, publicRT.id, name);
     const privateRT = routeTable.createPrivateRouteTable(myvpc.id, name);
     routeTable.associatePrivateSubnets(subnet.privateSubnets, privateRT.id, name);
-    const appsgId = securityGroup.createApplicationSecurityGroup(myvpc.id);
+    const lbsgId = securityGroup.createLbSecurityGroup(name, myvpc.id);
+    const appsgId = securityGroup.createApplicationSecurityGroup(myvpc.id, lbsgId);
     const dbsgId = securityGroup.createDbSecurityGroup(name, myvpc.id, appsgId);
     const rdsParameterGroup = rds.createRdsParameterGroup();
     const myRds = await rds.createRdsInstance(name, rdsParameterGroup, dbsgId, privateSubnetGroup); 
     const instanceProfile = iam.createRole();
-    const ec2 = ec2Instance.createEc2(name, appsgId, subnet.publicSubnets[0].id, myRds, instanceProfile.name);
-    const aRecord = route53.createArecord(ec2.publicIp);
+    const targetGroup = loadBalancer.createTragetGroup(name, myvpc.id);
+    const launchTemplate = ec2Instance.createLaunchTemplate(name, appsgId, instanceProfile.name, myRds);
+    const asGroup = autoScaling.createAutoScalingGroup(name, launchTemplate, subnet.publicSubnets, targetGroup.arn);
+    autoScaling.createScaleUpPolicy(name, asGroup);
+    autoScaling.createScaleDownPolicy(name, asGroup);
+    const alb = loadBalancer.create(name, lbsgId, subnet.publicSubnets);
+    const listener = loadBalancer.createListener(name, alb, targetGroup);
+    // const asAttachment = autoScaling.createasAttachment(name, asGroup.name, targetGroup.arn);
+    const aRecord = route53.createArecord(alb);
 }
 
 create(config.get("name"));

@@ -6,7 +6,7 @@ const ports = config.getObject("ports");
 
 const securityGroup = {};
 
-securityGroup.createApplicationSecurityGroup = (vpcId) => {
+securityGroup.createApplicationSecurityGroup = (vpcId, lbsgId) => {
     const securityGroup = new aws.ec2.SecurityGroup(`applicationSecurityGroup`, {
     vpcId: vpcId,
     ingress: [
@@ -14,25 +14,13 @@ securityGroup.createApplicationSecurityGroup = (vpcId) => {
             protocol: 'tcp',
             fromPort: ports[0],
             toPort: ports[0],
-            cidrBlocks: ['0.0.0.0/0'],
-        },
-        {
-            protocol: 'tcp',
-            fromPort: ports[1],
-            toPort: ports[1],
-            cidrBlocks: ['0.0.0.0/0'],
-        },
-        {
-            protocol: 'tcp',
-            fromPort: ports[2],
-            toPort: ports[2],
-            cidrBlocks: ['0.0.0.0/0'],
+            securityGroups: [lbsgId]
         },
         {
             protocol: 'tcp',
             fromPort: ports[3],
             toPort: ports[3],
-            cidrBlocks: ['0.0.0.0/0'],
+            securityGroups: [lbsgId]
         },
     ],
     egress: [
@@ -61,9 +49,43 @@ securityGroup.createDbSecurityGroup = (name, vpcId, appsgId) => {
                 toPort: ports[4],
                 securityGroups: [appsgId]
             },
-        ]
+        ],
+        tags: {
+            name: `databaseSecurityGroup`
+        }
     });
     return dbSecurityGroup.id;
+}
+
+securityGroup.createLbSecurityGroup = (name, vpcId) => {
+    const lbSecurityGroup = new aws.ec2.SecurityGroup(`${name}-lbSecurityGroup`, {
+        description: 'Load Balancer Security Group',
+        vpcId: vpcId,
+        ingress: [
+            {
+                protocol: 'tcp',
+                fromPort: ports[1],
+                toPort: ports[1],
+                cidrBlocks: ['0.0.0.0/0'],
+            },
+            {
+                protocol: 'tcp',
+                fromPort: ports[2],
+                toPort: ports[2],
+                cidrBlocks: ['0.0.0.0/0'],
+            },
+        ],
+        egress: [{
+            protocol: '-1', 
+            toPort: 0, 
+            fromPort: 0, 
+            cidrBlocks: ['0.0.0.0/0'],
+        }],
+        tags: {
+            name: `loadBalancerSecurityGroup`
+        }
+    });
+    return lbSecurityGroup.id;
 }
 
 module.exports = securityGroup;

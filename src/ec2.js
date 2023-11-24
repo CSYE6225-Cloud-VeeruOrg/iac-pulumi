@@ -1,13 +1,16 @@
-// const path = require('path');
-// require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const pulumi = require('@pulumi/pulumi');
 const aws = require('@pulumi/aws');
 const fs = require('fs');
-
+const AWS = require('aws-sdk');
 const config = new pulumi.Config();
+const awsConfig = new pulumi.Config("aws");
 const amiId = config.get("amiId");
 const publicKeyName = config.get("aws-ec2-keyName");
-
+const region = awsConfig.get("region");
+AWS.config.update({ region: region });
+const profile = config.get("stack");
+const credentials = new AWS.SharedIniFileCredentials({ profile: profile });
+AWS.config.credentials = credentials;
 const ec2 = {};
 
 ec2.createEc2 = (name, securityGroupId, subnetId, rds, instanceProfileName) => {
@@ -48,7 +51,7 @@ ec2.createEc2 = (name, securityGroupId, subnetId, rds, instanceProfileName) => {
     return ec2Instance;
 }
 
-ec2.createLaunchTemplate = (name, securityGroupId, instanceProfileName, rds) => {
+ec2.createLaunchTemplate = (name, securityGroupId, instanceProfileName, rds, topicArn) => {
     let userDataScript = pulumi.interpolate`#!/bin/bash
     sudo yum update -y
     echo "PGHOST=${rds.address}" >> /etc/environment
@@ -56,6 +59,10 @@ ec2.createLaunchTemplate = (name, securityGroupId, instanceProfileName, rds) => 
     echo "PGPASSWORD=${rds.password}" >> /etc/environment
     echo "PGDATABASE=${rds.dbName}" >> /etc/environment
     echo "PGPORT=${rds.port}" >> /etc/environment
+    echo "ACCESS_KEY = ${AWS.config.credentials.accessKeyId}" >> /etc/environment
+    echo "SECRET_ACCESS_KEY = ${AWS.config.credentials.secretAccessKey}" >> /etc/environment
+    echo "AWS_REGION=${region}" >> /etc/environment
+    echo "TOPIC_ARN=${topicArn}" >> /etc/environment
     sudo chown -R csye6225:csye6225 /etc/environment
     sudo chmod -R 755 /etc/environment
     sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \

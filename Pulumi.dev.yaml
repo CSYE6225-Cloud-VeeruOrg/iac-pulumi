@@ -1,24 +1,31 @@
 encryptionsalt: v1:AFc6DMXt/NQ=:v1:/9b6M8H2v0+Cw28Q:QulD15sa3NVQ2jSbBAYEWrpG6xsz+A==
 config:
   aws:region: us-east-1
-  stack: dev
+  gcp:project: csye6225-dev-405619
+  iac-pulumi:amiId: ami-0df77579450239502
+  iac-pulumi:aws-ec2-keyName: packer_pulumi
   iac-pulumi:baseCIDR: 10.0.0.0/16
   iac-pulumi:destinationCidrBlock: 0.0.0.0/0
+  iac-pulumi:gcpProjectId: csye6225-dev-405619
+  iac-pulumi:hostedZoneId: Z06373491XNJFCNR0DQ91
+  iac-pulumi:instanceType: t2.micro
   iac-pulumi:name: veeru
-  iac-pulumi:noOfPrivateSubnets: 3
-  iac-pulumi:noOfPublicSubnets: 3
-  ports: [22, 80, 443, 4000, 5432]
-  amiId: ami-0fb3ddf2cfb6bc073
-  instanceType: t2.micro
-  volumeSize: 25
-  volumeType: gp2
-  aws-ec2-keyName: packer_pulumi
-  iac-pulumi:publicSubnetCidrBlocks:
-    - 10.0.0.0/19
-    - 10.0.32.0/19
-    - 10.0.64.0/19
+  iac-pulumi:noOfPrivateSubnets: "3"
+  iac-pulumi:noOfPublicSubnets: "3"
+  iac-pulumi:ports:
+    - 22
+    - 80
+    - 443
+    - 4000
+    - 5432
   iac-pulumi:privateSubnetCidrBlocks:
     - 10.0.96.0/19
     - 10.0.128.0/19
     - 10.0.160.0/19
-  hostedZoneId: Z06373491XNJFCNR0DQ91
+  iac-pulumi:publicSubnetCidrBlocks:
+    - 10.0.0.0/19
+    - 10.0.32.0/19
+    - 10.0.64.0/19
+  iac-pulumi:stack: dev
+  iac-pulumi:volumeSize: "25"
+  iac-pulumi:volumeType: gp2

@@ -11,6 +11,11 @@ const autoScaling = require('./src/autoScaling');
 
 const pulumi = require('@pulumi/pulumi');
 const loadBalancer = require('./src/loadBalancer');
+const gcloud = require('./src/gcp');
+const lambdaFunction = require('./src/lambda');
+const dynamoDB = require('./src/dynamoDB');
+const sns = require('./src/sns');
+const secrets = require('./src/secrets');
 const config = new pulumi.Config();
 
 create = async (name) => {
@@ -31,16 +36,28 @@ create = async (name) => {
     const dbsgId = securityGroup.createDbSecurityGroup(name, myvpc.id, appsgId);
     const rdsParameterGroup = rds.createRdsParameterGroup();
     const myRds = await rds.createRdsInstance(name, rdsParameterGroup, dbsgId, privateSubnetGroup); 
-    const instanceProfile = iam.createRole();
+    const instanceProfile = iam.createec2CloudWatchRole();
     const targetGroup = loadBalancer.createTragetGroup(name, myvpc.id);
-    const launchTemplate = ec2Instance.createLaunchTemplate(name, appsgId, instanceProfile.name, myRds);
+    const snsTopic = sns.createTopic(name);
+    const bucket = gcloud.createBucket(name);
+    const serviceAccount = gcloud.createServiceAccount(name);
+    const serviceAccountKey = gcloud.createKey(name, serviceAccount.id);
+    gcloud.bindAccount(name, serviceAccount.email, bucket.name);
+    const privateKey = serviceAccountKey.privateKey.apply(key => {
+            return key;
+    });
+    const dynamoDBTable = dynamoDB.createTable(name);
+    const lambdaRole = iam.createLambdaRole(dynamoDBTable.arn);
+    const lambda = lambdaFunction.createLambdaFunction(name, lambdaRole, bucket.name, dynamoDBTable.name, snsTopic.arn, privateKey, serviceAccount.email);
+    const snsSubcribe = sns.subcribeTopic(name, snsTopic.arn, lambda.arn);
+    const launchTemplate = ec2Instance.createLaunchTemplate(name, appsgId, instanceProfile.name, myRds, snsTopic.arn);
     const asGroup = autoScaling.createAutoScalingGroup(name, launchTemplate, subnet.publicSubnets, targetGroup.arn);
     autoScaling.createScaleUpPolicy(name, asGroup);
     autoScaling.createScaleDownPolicy(name, asGroup);
     const alb = loadBalancer.create(name, lbsgId, subnet.publicSubnets);
     const listener = loadBalancer.createListener(name, alb, targetGroup);
-    // const asAttachment = autoScaling.createasAttachment(name, asGroup.name, targetGroup.arn);
     const aRecord = route53.createArecord(alb);
+    
 }
 
 create(config.get("name"));

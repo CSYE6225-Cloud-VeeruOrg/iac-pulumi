@@ -36,9 +36,10 @@ create = async (name) => {
     const dbsgId = securityGroup.createDbSecurityGroup(name, myvpc.id, appsgId);
     const rdsParameterGroup = rds.createRdsParameterGroup();
     const myRds = await rds.createRdsInstance(name, rdsParameterGroup, dbsgId, privateSubnetGroup); 
-    const instanceProfile = iam.createec2CloudWatchRole();
-    const targetGroup = loadBalancer.createTragetGroup(name, myvpc.id);
     const snsTopic = sns.createTopic(name);
+    const instanceProfile = iam.createEc2Role(snsTopic.arn);
+    const targetGroup = loadBalancer.createTragetGroup(name, myvpc.id);
+    // const snsProfile = iam.createSnsRole(snsTopic.arn);
     const bucket = gcloud.createBucket(name);
     const serviceAccount = gcloud.createServiceAccount(name);
     const serviceAccountKey = gcloud.createKey(name, serviceAccount.id);

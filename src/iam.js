@@ -3,35 +3,53 @@ const aws = require("@pulumi/aws");
 
 const iam = {};
 
-iam.createec2CloudWatchRole = () => {
-    const ec2CloudWatchRole = new aws.iam.Role("ec2-cloudwatch-role", {
-        assumeRolePolicy: JSON.stringify({
-            Version: "2012-10-17",
-            Statement: [
-              {
-                Effect: "Allow",
-                Principal: {
-                  Service: "ec2.amazonaws.com",
-                },
-                Action: "sts:AssumeRole",
-              },
-            ],
-        }),
-    });
+iam.createEc2Role = (snsArn) => {
+  const ec2Role = new aws.iam.Role("ec2-role", {
+    assumeRolePolicy: JSON.stringify({
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Effect: "Allow",
+          Principal: {
+            Service: "ec2.amazonaws.com",
+          },
+          Action: "sts:AssumeRole",
+        },
+      ],
+    }),
+  });
 
-    const policyAttachment = new aws.iam.PolicyAttachment("ec2-cloudwatch-policy", {
-        roles: [ec2CloudWatchRole.name],
-        policyArn: "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-    });
+  const policyAttachment = new aws.iam.PolicyAttachment("ec2-cloudwatch-policy", {
+    roles: [ec2Role.name],
+    policyArn: "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  });
 
-    const instanceProfile = new aws.iam.InstanceProfile("ec2-cloudwatch-instance-profile", {
-        role: ec2CloudWatchRole.name
-    });
+  const snsPolicy = new aws.iam.Policy("snsPolicy", {
+    policy: snsArn.apply(arn => JSON.stringify({
+      Version: "2012-10-17",
+      Statement: [{
+        Effect: "Allow",
+        Action: "sns:Publish",
+        Resource: arn,
+      },
+    ],
+    })
+    )
+  });
 
-    return instanceProfile;
+  const snsPolicyAttachment = new aws.iam.RolePolicyAttachment("snsPolicyAttachment", {
+    role: ec2Role.name,
+    policyArn: snsPolicy.arn,
+  });
+
+  const instanceProfile = new aws.iam.InstanceProfile("ec2-instance-profile", {
+    role: ec2Role.name
+  });
+
+  return instanceProfile;
 }
 
-iam.createLambdaRole = (dynamoDBArn, secretsARN) => {
+iam.createLambdaRole = (dynamoDBArn) => {
   const lambdaRole = new aws.iam.Role(`lambda-function-role`, {
     assumeRolePolicy: JSON.stringify({
         Version: "2012-10-17",
@@ -43,7 +61,6 @@ iam.createLambdaRole = (dynamoDBArn, secretsARN) => {
             Action: "sts:AssumeRole",
         }],
     }),
-    
   });
 
   const lambdaPolicy = new aws.iam.Policy("lambdaPolicy", {
@@ -59,40 +76,16 @@ iam.createLambdaRole = (dynamoDBArn, secretsARN) => {
                 "Effect": "Allow",
                 "Action": ["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:UpdateItem"],
                 "Resource": arn
-            },
-            {
-                "Effect": "Allow",
-                "Action": ["sns:Publish"],
-                "Resource": "*" 
             }
         ],
     }),
     )
   });
 
-  // const secretsPolicy = new aws.iam.Policy("secretsPolicy", {
-  //   policy: secretsARN.apply(arn => JSON.stringify({
-  //       "Version": "2012-10-17",
-  //       "Statement": [
-  //           {
-  //               "Action": ["secretsmanager:GetSecretValue"],
-  //               "Effect": "Allow",
-  //               "Resource": arn
-  //           }
-  //       ],
-  //   }),
-  //   )
-  // });
-
   const rolePolicyAttachment = new aws.iam.RolePolicyAttachment("lambdaRolePolicyyAttachment", {
     role: lambdaRole.name,
     policyArn: lambdaPolicy.arn,
   });
-
-//   const roleSecretsPolicyAttachment = new aws.iam.RolePolicyAttachment("lambdaRoleSecretPolicyyAttachment", {
-//     role: lambdaRole.name,
-//     policyArn: secretsPolicy.arn,
-// });
 
   const lambdaBasicExecutionAttachment = new aws.iam.RolePolicyAttachment("lambdaBasicExecutionAttachment", {
     role: lambdaRole.name,

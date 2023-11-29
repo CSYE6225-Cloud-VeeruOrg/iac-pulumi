@@ -1,11 +1,13 @@
 const pulumi = require('@pulumi/pulumi');
 const gcp = require('@pulumi/gcp');
+const gcpConfig = new pulumi.Config("gcp");
+const gcpRegion = gcpConfig.get("region");
 
 const gcloud = {};
 
 gcloud.createBucket = (name) => {
     const bucket = new gcp.storage.Bucket(`${name}-csye6225-assignments`, {
-        location: "US",
+        location: gcpRegion,
         forceDestroy: true,
     });
     return bucket;

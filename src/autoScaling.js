@@ -84,7 +84,6 @@ autoscaling.createScaleDownPolicy = (name, asg) => {
 autoscaling.createasAttachment = (name, asg, tg) => {
     const autoScalingGroupAttachment = new aws.autoscaling.Attachment(`${name}-asg-attachment`, {
         autoscalingGroupName: asg,
-        // albTargetGroupArn: tg,
         lbTargetGroupArn:tg
     });
     return autoScalingGroupAttachment;

@@ -76,12 +76,20 @@ securityGroup.createLbSecurityGroup = (name, vpcId) => {
                 cidrBlocks: ['0.0.0.0/0'],
             },
         ],
-        egress: [{
-            protocol: '-1', 
-            toPort: 0, 
-            fromPort: 0, 
-            cidrBlocks: ['0.0.0.0/0'],
-        }],
+        egress: [
+            // {
+            //     protocol: 'tcp', 
+            //     toPort: ports[3], 
+            //     fromPort: ports[3], 
+            //     cidrBlocks: ['0.0.0.0/0'],
+            // },
+            {
+                protocol: '-1', 
+                toPort: 0, 
+                fromPort: 0, 
+                cidrBlocks: ['0.0.0.0/0'],
+            }
+    ],
         tags: {
             name: `loadBalancerSecurityGroup`
         }

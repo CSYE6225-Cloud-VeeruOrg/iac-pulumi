@@ -71,6 +71,7 @@ ec2.createLaunchTemplate = (name, securityGroupId, instanceProfileName, rds, top
     });
     const template = new aws.ec2.LaunchTemplate(`${name}-launch-template`, {
         imageId: amiId,
+        name: `${name}-launch-template`,
         instanceType: config.get("instanceType"),
         keyName: publicKeyName,
         networkInterfaces: [{

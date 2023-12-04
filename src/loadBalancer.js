@@ -2,6 +2,7 @@ const pulumi = require('@pulumi/pulumi');
 const aws = require('@pulumi/aws');
 const config = new pulumi.Config();
 const ports = config.getObject("ports");
+const sslCertArn = config.get("sslCertArn");
 
 const loadBalancer = {};
 
@@ -40,8 +41,9 @@ loadBalancer.createTragetGroup = (name, vpcId) => {
 loadBalancer.createListener = (name, alb, tg) => {
     const listener = new aws.lb.Listener(`${name}-listener`, {
         loadBalancerArn: alb.arn,
-        port: ports[1],
-        protocol: "HTTP",
+        port: ports[2],
+        protocol: "HTTPS",
+        certificateArn: sslCertArn,
         defaultActions: [{
             type: "forward",
             targetGroupArn: tg.arn,

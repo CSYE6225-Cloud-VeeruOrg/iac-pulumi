@@ -39,3 +39,7 @@
 
 4. To destroy the stack:
         pulumi destroy
+
+## Command to import SSL Certificate into AWS Certificate Manager using AWS CLI
+
+aws acm import-certificate --certificate fileb://Users/veerendrachowdary/Downloads/demo.saiveerendra-prathipati.me/certificate.crt --private-key fileb://Users/veerendrachowdary/Downloads/demo.saiveerendra-prathipati.me/private.key --certificate-chain fileb://Users/veerendrachowdary/Downloads/demo.saiveerendra-prathipati.me/ca_bundle.crt --region us-east-1

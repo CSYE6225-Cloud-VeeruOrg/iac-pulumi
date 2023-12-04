@@ -9,6 +9,7 @@ autoscaling.createAutoScalingGroup = (name, launchTemplate, publicSubnets, tg) =
     });
     const asg = new aws.autoscaling.Group(`${name}-asg`, {
         vpcZoneIdentifiers: publicSubnetIds,
+        name: `${name}-asg`,
         desiredCapacity: 1,
         maxSize: 3,
         minSize: 1,

@@ -3,7 +3,7 @@ config:
   aws:region: us-east-1
   gcp:project: csye6225-demo-405702
   gcp:region: US
-  iac-pulumi:amiId: ami-0d3551728acf5abae
+  iac-pulumi:amiId: ami-0d993698b723f03b9
   iac-pulumi:aws-ec2-keyName: packer_pulumi_demo
   iac-pulumi:baseCIDR: 10.0.0.0/16
   iac-pulumi:destinationCidrBlock: 0.0.0.0/0
@@ -31,3 +31,4 @@ config:
   iac-pulumi:volumeType: gp2
   iac-pulumi:domain: demo.saiveerendra-prathipati.me
   iac-pulumi:serverless: /Users/veerendrachowdary/desktop/cloud/Assignment/serverless
+  iac-pulumi:sslCertArn: arn:aws:acm:us-east-1:042700404980:certificate/8619b923-af54-4cde-99eb-54181b6a665a

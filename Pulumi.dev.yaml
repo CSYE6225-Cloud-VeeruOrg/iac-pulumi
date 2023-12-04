@@ -3,7 +3,7 @@ config:
   aws:region: us-east-1
   gcp:project: csye6225-dev-405619
   gcp:region: US
-  iac-pulumi:amiId: ami-0d3551728acf5abae
+  iac-pulumi:amiId: ami-0d993698b723f03b9
   iac-pulumi:aws-ec2-keyName: packer_pulumi
   iac-pulumi:baseCIDR: 10.0.0.0/16
   iac-pulumi:destinationCidrBlock: 0.0.0.0/0
@@ -31,3 +31,4 @@ config:
   iac-pulumi:volumeSize: "25"
   iac-pulumi:volumeType: gp2
   iac-pulumi:serverless: /Users/veerendrachowdary/desktop/cloud/Assignment/serverless
+  iac-pulumi:sslCertArn: arn:aws:acm:us-east-1:339269296568:certificate/e9b7486c-644c-4a8c-a3c5-35c11537e39f
